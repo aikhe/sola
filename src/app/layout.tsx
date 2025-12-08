@@ -3,6 +3,7 @@ import { Nunito } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/lib/auth-context";
 import { SiteHeader } from "@/components/SiteHeader";
+import { Analytics } from "@vercel/analytics/next"
 
 const nunito = Nunito({
   subsets: ["latin"],
