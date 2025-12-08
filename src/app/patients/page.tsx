@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/lib/supabase";
 
@@ -21,14 +22,19 @@ import LoadingSpinner from "@/components/LoadingSpinner";
 
 export default function PatientsPage() {
   const { user, isLoading } = useAuth();
+  const router = useRouter();
   const [patients, setPatients] = useState<PatientRecord[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!isLoading && user) {
-      fetchPatients();
+    if (!isLoading) {
+      if (user) {
+        fetchPatients();
+      } else {
+        router.push("/signin");
+      }
     }
-  }, [user, isLoading]);
+  }, [user, isLoading, router]);
 
   const fetchPatients = async () => {
     try {
