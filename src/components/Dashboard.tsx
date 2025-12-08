@@ -3,37 +3,36 @@
 import { AIAnalysisResult, TreatmentPlan } from "@/lib/types";
 import { useState } from "react";
 import { useAuth } from "@/lib/auth-context";
+import { Button } from "@/modules/ui/components/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/modules/ui/components/card";
+import { Badge } from "@/modules/ui/components/badge";
 
 interface Props {
   result: AIAnalysisResult;
+  patientImage?: string;
 }
 
-export default function Dashboard({ result }: Props) {
+export default function Dashboard({ result, patientImage }: Props) {
   const { user } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [plan, setPlan] = useState<TreatmentPlan>(result.treatment_plan);
   const [isSaving, setIsSaving] = useState(false);
   const [status, setStatus] = useState<"pending" | "approved" | "rejected">(
-    result.status || "pending"
+    result.status || "pending",
   );
-  
+
   // Modal states
   const [showApproveModal, setShowApproveModal] = useState(false);
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [reviewerName, setReviewerName] = useState(user?.email || "Clinician");
   const [reviewerNotes, setReviewerNotes] = useState("");
   const [rejectionReason, setRejectionReason] = useState("");
-
-  const getRiskColor = (level: string) => {
-    switch (level) {
-      case "high":
-        return "bg-red-500 text-white";
-      case "medium":
-        return "bg-orange-500 text-white";
-      default:
-        return "bg-green-500 text-white";
-    }
-  };
 
   const getRiskDescription = (level: string) => {
     switch (level) {
@@ -46,13 +45,24 @@ export default function Dashboard({ result }: Props) {
     }
   };
 
+  const getRiskBadgeVariant = (level: string) => {
+    switch (level) {
+      case "high":
+        return "destructive";
+      case "medium":
+        return "secondary";
+      default:
+        return "outline";
+    }
+  };
+
   const handleSave = async () => {
     setIsSaving(true);
     try {
       const res = await fetch(`/api/analysis/${result.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           treatment_plan: plan,
           action: "edited",
           reviewer_name: user?.email || "Clinician",
@@ -78,11 +88,11 @@ export default function Dashboard({ result }: Props) {
       const res = await fetch(`/api/analysis/${result.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           status: "approved",
           action: "approved",
           reviewer_name: reviewerName,
-          reviewer_notes: reviewerNotes
+          reviewer_notes: reviewerNotes,
         }),
       });
 
@@ -111,12 +121,12 @@ export default function Dashboard({ result }: Props) {
       const res = await fetch(`/api/analysis/${result.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           status: "rejected",
           rejection_reason: rejectionReason,
           action: "rejected",
           reviewer_name: reviewerName,
-          reviewer_notes: rejectionReason // Use rejection reason as notes
+          reviewer_notes: rejectionReason,
         }),
       });
 
@@ -154,8 +164,18 @@ export default function Dashboard({ result }: Props) {
           {status === "approved" && (
             <div className="flex items-center space-x-4">
               <span className="text-green-600 font-medium flex items-center">
-                <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                <svg
+                  className="w-5 h-5 mr-1"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M5 13l4 4L19 7"
+                  />
                 </svg>
                 Approved
               </span>
@@ -163,343 +183,562 @@ export default function Dashboard({ result }: Props) {
                 onClick={handleDownloadPDF}
                 className="px-4 py-2 bg-gray-800 text-white rounded-md hover:bg-gray-900 flex items-center"
               >
-                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                <svg
+                  className="w-4 h-4 mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                  />
                 </svg>
                 Download PDF
               </button>
             </div>
           )}
+          {/* Add remaining status and buttons */}
+        </div>
+      </div>
 
-          {status === "rejected" && (
-            <span className="text-red-600 font-medium flex items-center">
-              <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-              Rejected
-            </span>
+      <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-12">
+        {/* Left Column: Clinical Solution (7 cols) */}
+        <div className="lg:col-span-7 space-y-5">
+
+          {/* Clinical Summary */}
+          <Card className="rounded-xl border border-black/10 bg-white shadow-[0_4px_0_rgba(0,0,0,0.2)]">
+            <CardHeader>
+              <CardTitle>Clinical Summary</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-gray-700 leading-relaxed text-lg">{result.summary}</p>
+            </CardContent>
+          </Card>
+
+          {/* Visual Summary */}
+          {(result.visual_summary || patientImage) && (
+            <Card className="rounded-xl border border-black/10 bg-white shadow-[0_4px_0_rgba(0,0,0,0.2)]">
+              <CardHeader>
+                <CardTitle>Visual Analysis</CardTitle>
+                <CardDescription>
+                  AI assessment of physical presentation.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {patientImage && (
+                  <div className="flex justify-center bg-slate-50 rounded-lg p-4 border border-dashed border-slate-200">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={patientImage}
+                      alt="Patient full body"
+                      className="max-h-[300px] w-auto rounded shadow-sm object-contain"
+                    />
+                  </div>
+                )}
+                {result.visual_summary ? (
+                  <p className="text-gray-700 leading-relaxed">
+                    {result.visual_summary}
+                  </p>
+                ) : (
+                  <p className="text-sm text-muted-foreground italic">
+                    No visual analysis summary generated yet.
+                  </p>
+                )}
+              </CardContent>
+            </Card>
           )}
-          
-          {status === "pending" && (
-            <>
+
+          {/* Treatment Plan */}
+          <Card className="rounded-xl border border-black/10 bg-white shadow-[0_4px_0_rgba(0,0,0,0.2)]">
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle>Treatment Plan</CardTitle>
               {isEditing ? (
-                <>
-                  <button
-                    onClick={() => setIsEditing(false)}
-                    className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
-                    disabled={isSaving}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={handleSave}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
-                    disabled={isSaving}
-                  >
-                    {isSaving ? "Saving..." : "Save Changes"}
-                  </button>
-                </>
+                <Badge variant="secondary">Editing</Badge>
               ) : (
-                <>
-                  <button
-                    onClick={() => setIsEditing(true)}
-                    className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
-                  >
-                    Edit Plan
-                  </button>
-                  <button 
-                    onClick={() => setShowRejectModal(true)}
-                    className="px-4 py-2 border border-red-300 text-red-700 rounded-md hover:bg-red-50"
-                  >
-                    Reject
-                  </button>
-                  <button 
-                    onClick={() => setShowApproveModal(true)}
-                    className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
-                  >
-                    Approve
-                  </button>
-                </>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsEditing(true)}
+                  disabled={status !== "pending"}
+                  className="border-gray-200"
+                >
+                  Edit Plan
+                </Button>
               )}
-            </>
-          )}
-        </div>
-      </div>
-
-      {/* Print Header */}
-      <div className="hidden print:block mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">Patient Treatment Plan</h1>
-        <p className="text-gray-600">Generated on {new Date().toLocaleDateString()}</p>
-        <div className="mt-4 p-4 border border-gray-200 rounded-lg">
-          <p><strong>Status:</strong> {status.toUpperCase()}</p>
-          <p><strong>Reviewer:</strong> {reviewerName}</p>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 print:grid-cols-1 print:gap-4">
-        {/* Panel 1: Treatment Plan */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 print:border-gray-300 print:shadow-none">
-          <h2 className="text-xl font-semibold mb-4 text-gray-800">Treatment Plan</h2>
-          
-          <div className="space-y-4">
-            <div>
-              <h3 className="font-medium text-gray-700 mb-2">Medications</h3>
-              {isEditing ? (
-                <textarea
-                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-sm"
-                  rows={4}
-                  value={plan.medications.join("\n")}
-                  onChange={(e) => updatePlan("medications", e.target.value)}
-                  placeholder="Enter medications (one per line)"
-                />
-              ) : (
-                plan.medications.length > 0 ? (
-                  <ul className="list-disc list-inside text-gray-600 space-y-1">
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Medications */}
+              <div>
+                <h3 className="font-semibold mb-2 flex items-center">
+                  <span className="bg-blue-100 text-blue-800 p-1 rounded mr-2">
+                    💊
+                  </span>
+                  Medications
+                </h3>
+                {isEditing ? (
+                  <textarea
+                    className="w-full min-h-[100px] p-2 border rounded-md"
+                    value={plan.medications.join("\n")}
+                    onChange={(e) => updatePlan("medications", e.target.value)}
+                  />
+                ) : (
+                  <ul className="list-disc list-inside space-y-1 text-gray-700">
                     {plan.medications.map((med, i) => (
                       <li key={i}>{med}</li>
                     ))}
+                    {plan.medications.length === 0 && (
+                      <li className="text-gray-400 italic">
+                        No medications recommended
+                      </li>
+                    )}
                   </ul>
-                ) : (
-                  <p className="text-gray-500 text-sm italic">No medications prescribed</p>
-                )
-              )}
-            </div>
+                )}
+              </div>
 
-            <div>
-              <h3 className="font-medium text-gray-700 mb-2">Lifestyle Changes</h3>
-              {isEditing ? (
-                <textarea
-                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-sm"
-                  rows={4}
-                  value={plan.lifestyle_changes.join("\n")}
-                  onChange={(e) => updatePlan("lifestyle_changes", e.target.value)}
-                  placeholder="Enter lifestyle changes (one per line)"
-                />
-              ) : (
-                plan.lifestyle_changes.length > 0 ? (
-                  <ul className="list-disc list-inside text-gray-600 space-y-1">
+              {/* Lifestyle Changes */}
+              <div>
+                <h3 className="font-semibold mb-2 flex items-center">
+                  <span className="bg-green-100 text-green-800 p-1 rounded mr-2">
+                    🥗
+                  </span>
+                  Lifestyle Changes
+                </h3>
+                {isEditing ? (
+                  <textarea
+                    className="w-full min-h-[100px] p-2 border rounded-md"
+                    value={plan.lifestyle_changes.join("\n")}
+                    onChange={(e) =>
+                      updatePlan("lifestyle_changes", e.target.value)
+                    }
+                  />
+                ) : (
+                  <ul className="list-disc list-inside space-y-1 text-gray-700">
                     {plan.lifestyle_changes.map((change, i) => (
                       <li key={i}>{change}</li>
                     ))}
+                    {plan.lifestyle_changes.length === 0 && (
+                      <li className="text-gray-400 italic">
+                        No lifestyle changes recommended
+                      </li>
+                    )}
                   </ul>
-                ) : (
-                  <p className="text-gray-500 text-sm italic">No lifestyle changes recommended</p>
-                )
-              )}
-            </div>
+                )}
+              </div>
 
-            <div>
-              <h3 className="font-medium text-gray-700 mb-2">Referrals</h3>
-              {isEditing ? (
-                <textarea
-                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-sm"
-                  rows={4}
-                  value={plan.referrals.join("\n")}
-                  onChange={(e) => updatePlan("referrals", e.target.value)}
-                  placeholder="Enter referrals (one per line)"
-                />
-              ) : (
-                plan.referrals.length > 0 ? (
-                  <ul className="list-disc list-inside text-gray-600 space-y-1">
+              {/* Referrals */}
+              <div>
+                <h3 className="font-semibold mb-2 flex items-center">
+                  <span className="bg-purple-100 text-purple-800 p-1 rounded mr-2">
+                    👨‍⚕️
+                  </span>
+                  Referrals
+                </h3>
+                {isEditing ? (
+                  <textarea
+                    className="w-full min-h-[100px] p-2 border rounded-md"
+                    value={plan.referrals.join("\n")}
+                    onChange={(e) => updatePlan("referrals", e.target.value)}
+                  />
+                ) : (
+                  <ul className="list-disc list-inside space-y-1 text-gray-700">
                     {plan.referrals.map((ref, i) => (
                       <li key={i}>{ref}</li>
                     ))}
+                    {plan.referrals.length === 0 && (
+                      <li className="text-gray-400 italic">
+                        No referrals recommended
+                      </li>
+                    )}
                   </ul>
-                ) : (
-                  <p className="text-gray-500 text-sm italic">No referrals needed</p>
-                )
+                )}
+              </div>
+
+              {isEditing && (
+                <div className="flex justify-end space-x-2 pt-4">
+                  <Button variant="outline" onClick={() => setIsEditing(false)}>
+                    Cancel
+                  </Button>
+                  <Button onClick={handleSave} disabled={isSaving}>
+                    {isSaving ? "Saving..." : "Save Changes"}
+                  </Button>
+                </div>
               )}
-            </div>
-          </div>
-        </div>
+            </CardContent>
+          </Card>
 
-        {/* Panel 2: Risk Indicator */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 print:border-gray-300 print:shadow-none">
-          <h2 className="text-xl font-semibold mb-4 text-gray-800">Risk Assessment</h2>
-          
-          <div className="flex flex-col items-center justify-center h-64 space-y-4 print:h-auto print:block">
-            <div className="relative group print:hidden">
-              <div 
-                className={`w-32 h-32 rounded-full flex items-center justify-center text-2xl font-bold shadow-lg ${getRiskColor(result.risk_level)}`}
-              >
-                {result.risk_level.toUpperCase()}
+          {/* Risk Assessment */}
+          <Card className="rounded-xl border border-black/10 bg-white shadow-[0_4px_0_rgba(0,0,0,0.2)]">
+            <CardHeader>
+              <CardTitle>Risk Assessment</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-gray-600">Overall Risk</span>
+                <Badge
+                  variant={getRiskBadgeVariant(result.risk_level)}
+                  className="capitalize text-base px-3 py-1"
+                >
+                  {result.risk_level}
+                </Badge>
               </div>
-              
-              {/* Tooltip */}
-              <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity w-48 text-center pointer-events-none">
+              <p className="text-sm text-muted-foreground">
                 {getRiskDescription(result.risk_level)}
-                <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
+              </p>
+
+              <div className="pt-4 border-t">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-gray-600">Safety Score</span>
+                  <span className="font-bold text-lg">
+                    {result.safety_score}/100
+                  </span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2.5">
+                  <div
+                    className={`h-2.5 rounded-full ${result.safety_score > 80
+                      ? "bg-green-600"
+                      : result.safety_score > 50
+                        ? "bg-yellow-500"
+                        : "bg-red-600"
+                      }`}
+                    style={{ width: `${result.safety_score}%` }}
+                  ></div>
+                </div>
               </div>
-            </div>
+            </CardContent>
+          </Card>
 
-            {/* Print-friendly risk display */}
-            <div className="hidden print:block mb-4">
-              <p><strong>Risk Level:</strong> {result.risk_level.toUpperCase()}</p>
-              <p className="text-sm text-gray-600">{getRiskDescription(result.risk_level)}</p>
-            </div>
+          {/* Flagged Issues */}
+          {(result.flagged_issues.drug_interactions.length > 0 ||
+            result.flagged_issues.contraindications.length > 0 ||
+            result.flagged_issues.warnings.length > 0) && (
+              <Card className="rounded-xl border border-black/10 bg-red-50 shadow-[0_4px_0_rgba(0,0,0,0.2)]">
+                <CardHeader>
+                  <CardTitle className="text-red-700 flex items-center">
+                    <svg
+                      className="w-5 h-5 mr-2"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                      />
+                    </svg>
+                    Flagged Issues
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {result.flagged_issues.drug_interactions.length > 0 && (
+                    <div>
+                      <h4 className="font-semibold text-red-800 text-sm mb-1">
+                        Drug Interactions
+                      </h4>
+                      <ul className="list-disc list-inside text-sm text-red-700">
+                        {result.flagged_issues.drug_interactions.map(
+                          (item, i) => (
+                            <li key={i}>{item}</li>
+                          ),
+                        )}
+                      </ul>
+                    </div>
+                  )}
+                  {result.flagged_issues.contraindications.length > 0 && (
+                    <div>
+                      <h4 className="font-semibold text-red-800 text-sm mb-1">
+                        Contraindications
+                      </h4>
+                      <ul className="list-disc list-inside text-sm text-red-700">
+                        {result.flagged_issues.contraindications.map(
+                          (item, i) => (
+                            <li key={i}>{item}</li>
+                          ),
+                        )}
+                      </ul>
+                    </div>
+                  )}
+                  {result.flagged_issues.warnings.length > 0 && (
+                    <div>
+                      <h4 className="font-semibold text-red-800 text-sm mb-1">
+                        Warnings
+                      </h4>
+                      <ul className="list-disc list-inside text-sm text-red-700">
+                        {result.flagged_issues.warnings.map((item, i) => (
+                          <li key={i}>{item}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
 
-            <div className="text-center print:text-left">
-              <p className="text-gray-500 text-sm mb-1">Patient Safety Score</p>
-              <p className="text-3xl font-bold text-gray-800">{result.safety_score}/100</p>
-            </div>
-          </div>
+          {/* Research Summary - RAG System */}
+          <Card className="rounded-xl border border-black/10 bg-white shadow-[0_4px_0_rgba(0,0,0,0.2)]">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="lucide lucide-book-open"
+                >
+                  <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+                  <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+                </svg>
+                Research Summary
+              </CardTitle>
+              <CardDescription>
+                Evidence-based insights sourced from clinical literature.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {result.research_summary ? (
+                <p className="text-gray-700 leading-relaxed text-sm">
+                  {result.research_summary}
+                </p>
+              ) : (
+                <div className="flex flex-col items-center justify-center space-y-3 py-6 text-center">
+                  <div className="rounded-full bg-slate-100 p-3">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="text-slate-400"
+                    >
+                      <circle cx="11" cy="11" r="8" />
+                      <path d="m21 21-4.3-4.3" />
+                    </svg>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Research compilation in progress...
+                  </p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Citations */}
+          {result.citations.length > 0 && (
+            <Card className="rounded-xl border border-black/10 bg-white shadow-[0_4px_0_rgba(0,0,0,0.2)]">
+              <CardHeader>
+                <CardTitle className="text-base">References</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="list-decimal list-inside text-sm text-gray-500 space-y-1">
+                  {result.citations.map((citation, i) => (
+                    <li key={i} className="break-words">
+                      {citation}
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Clinical Review Actions */}
+          {user?.role === "clinician" && status === "pending" && (
+            <Card className="rounded-xl border border-black/10 bg-blue-50 shadow-[0_4px_0_rgba(0,0,0,0.2)]">
+              <CardHeader>
+                <CardTitle className="text-blue-800">Clinical Action</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <Button
+                  className="w-full bg-green-600 hover:bg-green-700"
+                  onClick={() => setShowApproveModal(true)}
+                  disabled={isEditing}
+                >
+                  Approve Plan
+                </Button>
+                <Button
+                  variant="destructive"
+                  className="w-full"
+                  onClick={() => setShowRejectModal(true)}
+                  disabled={isEditing}
+                >
+                  Reject & Request Changes
+                </Button>
+              </CardContent>
+            </Card>
+          )}
         </div>
 
-        {/* Panel 3: Flagged Issues */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 print:border-gray-300 print:shadow-none">
-          <h2 className="text-xl font-semibold mb-4 text-red-600">Flagged Issues</h2>
-          
-          <div className="space-y-4">
-            {result.flagged_issues.drug_interactions.length > 0 && (
-              <div className="p-3 bg-red-50 rounded-lg border border-red-100 print:border-gray-300">
-                <h3 className="font-medium text-red-800 mb-2 flex items-center">
-                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                  </svg>
-                  Interactions
-                </h3>
-                <ul className="list-disc list-inside text-red-700 text-sm space-y-1">
-                  {result.flagged_issues.drug_interactions.map((item, i) => (
-                    <li key={i}>{item}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
+        {/* Right Column: Special Mentions (5 cols) */}
+        <div className="lg:col-span-5 space-y-5">
 
-            {result.flagged_issues.contraindications.length > 0 && (
-              <div className="p-3 bg-orange-50 rounded-lg border border-orange-100 print:border-gray-300">
-                <h3 className="font-medium text-orange-800 mb-2 flex items-center">
-                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  Contraindications
-                </h3>
-                <ul className="list-disc list-inside text-orange-700 text-sm space-y-1">
-                  {result.flagged_issues.contraindications.map((item, i) => (
-                    <li key={i}>{item}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
+          {/* Meal Plan */}
+          {result.meal_plan && (
+            <Card className="rounded-xl border border-black/10 bg-white shadow-[0_4px_0_rgba(0,0,0,0.2)] overflow-hidden">
+              <CardHeader className="bg-[#f0fdf4] border-b border-green-100 pb-4">
+                <CardTitle className="text-green-800 flex items-center gap-2">
 
-            {result.flagged_issues.warnings.length > 0 && (
-              <div className="p-3 bg-yellow-50 rounded-lg border border-yellow-100 print:border-gray-300">
-                <h3 className="font-medium text-yellow-800 mb-2 flex items-center">
-                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  Warnings
-                </h3>
-                <ul className="list-disc list-inside text-yellow-700 text-sm space-y-1">
-                  {result.flagged_issues.warnings.map((item, i) => (
-                    <li key={i}>{item}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
+                  Meal Prep Suggestion
+                </CardTitle>
+                <CardDescription>
+                  Recommended category based on your health profile.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6 pt-6">
+                <div className="flex items-center justify-center bg-white p-3 rounded-lg border border-green-100 shadow-sm">
+                  <span className="text-lg font-bold text-gray-800 uppercase tracking-wider">
+                    {result.meal_plan.category}
+                  </span>
+                </div>
 
-            {result.flagged_issues.drug_interactions.length === 0 &&
-             result.flagged_issues.contraindications.length === 0 &&
-             result.flagged_issues.warnings.length === 0 && (
-              <div className="text-center py-8 text-gray-500">
-                <svg className="w-12 h-12 mx-auto mb-3 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <p>No critical issues flagged</p>
-              </div>
-            )}
-          </div>
+                <a
+                  href={`https://nummeals.com?category=${result.meal_plan.category}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block w-full"
+                >
+                  <button className="w-full h-[50px] rounded-xl bg-[#ff4b4b] text-[15px] font-extrabold tracking-widest text-white uppercase shadow-[0_4px_0_#ea2b2b] transition hover:bg-[#ff5c5c] active:translate-y-[4px] active:shadow-none flex items-center justify-center gap-2">
+                    Get Meal Plan
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="3"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                      <polyline points="15 3 21 3 21 9" />
+                      <line x1="10" x2="21" y1="14" y2="3" />
+                    </svg>
+                  </button>
+                </a>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* GoRocky Recommendation */}
+          {result.gorocky_recommendation && (
+            <Card className="rounded-xl border border-black/10 bg-white shadow-[0_4px_0_rgba(0,0,0,0.2)] overflow-hidden">
+              <CardHeader className="bg-[#fff7ed] border-b border-orange-100 pb-4">
+                <CardTitle className="text-orange-800 flex items-center gap-2">
+                  Product Recommendation
+                </CardTitle>
+                <CardDescription>
+                  Tailored suggestion from our partner.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6 pt-6">
+                <div className="flex flex-col items-center justify-center p-6 bg-white rounded-lg border border-orange-100 shadow-sm text-center">
+                  <span className="text-lg font-bold text-gray-800 uppercase tracking-wider mb-3">
+                    {result.gorocky_recommendation.product}
+                  </span>
+
+                  <p className="text-gray-600 text-sm leading-relaxed">
+                    {result.gorocky_recommendation.reasoning}
+                  </p>
+                </div>
+
+                <a
+                  href="https://gorocky.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block w-full"
+                >
+                  <button className="w-full h-[50px] rounded-xl bg-[#ff4b4b] text-[15px] font-extrabold tracking-widest text-white uppercase shadow-[0_4px_0_#ea2b2b] transition hover:bg-[#ff5c5c] active:translate-y-[4px] active:shadow-none flex items-center justify-center gap-2">
+                    Get Started
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></svg>
+                  </button>
+                </a>
+              </CardContent>
+            </Card>
+          )}
         </div>
       </div>
 
-      {/* Approve Modal */}
+      {/* Modals */}
       {showApproveModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 print:hidden">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full">
-            <h3 className="text-xl font-bold mb-4">Approve Treatment Plan</h3>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg max-w-md w-full">
+            <h3 className="text-lg font-bold mb-4">Approve Treatment Plan</h3>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700">Reviewer Name</label>
+                <label className="block text-sm font-medium mb-1">Reviewer Name</label>
                 <input
                   type="text"
+                  className="w-full border rounded p-2"
                   value={reviewerName}
                   onChange={(e) => setReviewerName(e.target.value)}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">Notes (Optional)</label>
+                <label className="block text-sm font-medium mb-1">Notes</label>
                 <textarea
+                  className="w-full border rounded p-2"
                   value={reviewerNotes}
                   onChange={(e) => setReviewerNotes(e.target.value)}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border"
-                  rows={3}
+                  placeholder="Optional notes..."
                 />
               </div>
-              <div className="flex justify-end space-x-3 mt-6">
-                <button
-                  onClick={() => setShowApproveModal(false)}
-                  className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleApprove}
-                  className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
-                  disabled={isSaving}
-                >
+              <div className="flex justify-end space-x-2 pt-2">
+                <Button variant="outline" onClick={() => setShowApproveModal(false)}>Cancel</Button>
+                <Button onClick={handleApprove} disabled={isSaving}>
                   {isSaving ? "Approving..." : "Confirm Approval"}
-                </button>
+                </Button>
               </div>
             </div>
           </div>
         </div>
       )}
 
-      {/* Reject Modal */}
       {showRejectModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 print:hidden">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full">
-            <h3 className="text-xl font-bold mb-4 text-red-600">Reject Treatment Plan</h3>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg max-w-md w-full">
+            <h3 className="text-lg font-bold mb-4 text-destructive">Reject Treatment Plan</h3>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700">Reviewer Name</label>
+                <label className="block text-sm font-medium mb-1">Reviewer Name</label>
                 <input
                   type="text"
+                  className="w-full border rounded p-2"
                   value={reviewerName}
                   onChange={(e) => setReviewerName(e.target.value)}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">Reason for Rejection *</label>
+                <label className="block text-sm font-medium mb-1">Rejection Reason *</label>
                 <textarea
+                  className="w-full border rounded p-2 border-red-300"
                   value={rejectionReason}
                   onChange={(e) => setRejectionReason(e.target.value)}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border"
-                  rows={3}
-                  placeholder="Please explain why this plan is being rejected..."
+                  placeholder="Why is this plan being rejected?"
                 />
               </div>
-              <div className="flex justify-end space-x-3 mt-6">
-                <button
-                  onClick={() => setShowRejectModal(false)}
-                  className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleReject}
-                  className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
-                  disabled={isSaving || !rejectionReason.trim()}
-                >
+              <div className="flex justify-end space-x-2 pt-2">
+                <Button variant="outline" onClick={() => setShowRejectModal(false)}>Cancel</Button>
+                <Button variant="destructive" onClick={handleReject} disabled={isSaving}>
                   {isSaving ? "Rejecting..." : "Confirm Rejection"}
-                </button>
+                </Button>
               </div>
             </div>
           </div>
         </div>
       )}
+
     </div>
   );
 }
