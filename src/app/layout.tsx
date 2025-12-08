@@ -12,7 +12,7 @@ const nunito = Nunito({
 });
 
 export const metadata: Metadata = {
-  title: "Sola",
+  title: "Sola AI",
   description: "AI-powered health clinical assistant",
   icons: {
     icon: "/tomato.png",
