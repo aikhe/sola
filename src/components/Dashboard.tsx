@@ -259,18 +259,11 @@ export default function Dashboard({ result, patientImage }: Props) {
                 {isEditing ? (
                   <>
                     <Button
-<<<<<<< HEAD
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setIsEditing(false)}
-                      disabled={isSaving}
-=======
                       variant="ghost"
                       size="sm"
                       onClick={() => setIsEditing(false)}
                       disabled={isSaving}
                       className="h-10 rounded-xl border-2 border-transparent text-gray-500 font-extrabold uppercase tracking-wide hover:bg-gray-100"
->>>>>>> 99d4ba6 (feat(polishes): i think this is probably how much this project can go)
                     >
                       Cancel
                     </Button>
@@ -278,10 +271,7 @@ export default function Dashboard({ result, patientImage }: Props) {
                       size="sm"
                       onClick={handleSave}
                       disabled={isSaving}
-<<<<<<< HEAD
-=======
                       className="h-10 px-6 rounded-xl bg-[#58cc02] border-2 border-[#58cc02] text-white shadow-[0_4px_0_#46a302] font-extrabold uppercase tracking-wide transition hover:bg-[#61e002] active:translate-y-[2px] active:shadow-none"
->>>>>>> 99d4ba6 (feat(polishes): i think this is probably how much this project can go)
                     >
                       Save Changes
                     </Button>
@@ -293,11 +283,7 @@ export default function Dashboard({ result, patientImage }: Props) {
                       size="sm"
                       onClick={() => setIsEditing(true)}
                       disabled={status !== "pending"}
-<<<<<<< HEAD
-                      className="border-gray-200"
-=======
                       className="h-10 px-4 rounded-xl border-2 border-[#e5e5e5] bg-white text-gray-700 shadow-[0_4px_0_#e5e5e5] font-extrabold uppercase tracking-wide transition hover:bg-slate-50 active:translate-y-[2px] active:shadow-none"
->>>>>>> 99d4ba6 (feat(polishes): i think this is probably how much this project can go)
                     >
                       Edit Plan
                     </Button>
@@ -307,22 +293,14 @@ export default function Dashboard({ result, patientImage }: Props) {
                           variant="outline"
                           size="sm"
                           onClick={() => setShowRejectModal(true)}
-<<<<<<< HEAD
-                          className="border-red-200 text-red-700 hover:bg-red-50 hover:text-red-800"
-=======
                           className="h-10 px-4 rounded-xl border-2 border-[#e5e5e5] bg-white text-[#ff4b4b] shadow-[0_4px_0_#e5e5e5] font-extrabold uppercase tracking-wide transition hover:bg-slate-50 active:translate-y-[2px] active:shadow-none hover:text-[#ff4b4b]"
->>>>>>> 99d4ba6 (feat(polishes): i think this is probably how much this project can go)
                         >
                           Reject
                         </Button>
                         <Button
                           size="sm"
                           onClick={() => setShowApproveModal(true)}
-<<<<<<< HEAD
-                          className="bg-green-600 hover:bg-green-700 text-white"
-=======
                           className="h-10 px-6 rounded-xl bg-[#58cc02] border-2 border-[#58cc02] text-white shadow-[0_4px_0_#46a302] font-extrabold uppercase tracking-wide transition hover:bg-[#61e002] active:translate-y-[2px] active:shadow-none"
->>>>>>> 99d4ba6 (feat(polishes): i think this is probably how much this project can go)
                         >
                           Approve
                         </Button>
