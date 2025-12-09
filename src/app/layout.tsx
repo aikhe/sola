@@ -3,11 +3,8 @@ import { Nunito } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/lib/auth-context";
 import { SiteHeader } from "@/components/SiteHeader";
-<<<<<<< HEAD
-=======
 import { SiteFooter } from "@/components/SiteFooter";
->>>>>>> 99d4ba6 (feat(polishes): i think this is probably how much this project can go)
-import { Analytics } from "@vercel/analytics/next"
+import { Analytics } from "@vercel/analytics/next";
 
 const nunito = Nunito({
   subsets: ["latin"],
@@ -20,11 +17,7 @@ export const metadata: Metadata = {
   title: "Sola AI",
   description: "AI-powered health clinical assistant",
   icons: {
-<<<<<<< HEAD
-    icon: "/tomato.png",
-=======
     icon: "/app-icon.png",
->>>>>>> 99d4ba6 (feat(polishes): i think this is probably how much this project can go)
   },
 };
 
