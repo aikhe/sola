@@ -264,6 +264,10 @@ export default function Dashboard({ result, patientImage }: Props) {
                       onClick={() => setIsEditing(false)}
                       disabled={isSaving}
                       className="h-10 rounded-xl border-2 border-transparent text-gray-500 font-extrabold uppercase tracking-wide hover:bg-gray-100"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setIsEditing(false)}
+                      disabled={isSaving}
                     >
                       Cancel
                     </Button>
