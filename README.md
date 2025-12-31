@@ -1,115 +1,58 @@
-# AI Health Clinical Assistant
+<p align="center">
+  <br />
+  <a href="https://sola-buddy.vercel.app">
+    <picture>
+      <img src="https://sola-buddy.vercel.app/sola-logo.png" width="200px">
+    </picture>
+  </a>
+</p>
 
-An AI-powered clinical decision support system designed to streamline patient intake, automate risk assessment, and generate preliminary treatment plans for clinicians.
+# Sola
 
-## 🚀 Project Specification
+> **Note**: This project was built and submitted as part of the Ship or be Shipped Hackathon.
 
-### Overview
-The AI Health Clinical Assistant is a web application that bridges the gap between patient data collection and clinical decision-making. It uses OpenAI's GPT models to analyze patient intake forms, identify potential risks (drug interactions, contraindications), and suggest evidence-based treatment plans.
+Clinical decision support system that bridges structured patient intake and clinician decision-making. It leverages retrieval-augmented generation (RAG) backed by FAISS-based vector similarity search to contextualize patient data against curated medical knowledge, perform automated risk and contraindication analysis, and generate evidence-based treatment plans for clinician review and override.
 
-### Key Features
-- **Smart Patient Intake**: Comprehensive multi-step form collecting personal info, medical history, medications, lifestyle data, and primary complaints.
-- **AI Clinical Analysis**:
-  - **Risk Assessment**: Automatic calculation of risk levels (Low/Medium/High) and safety scores.
-  - **Treatment Planning**: AI-generated suggestions for medications, lifestyle changes, and referrals.
-  - **Safety Checks**: Automatic flagging of drug interactions, contraindications, and warnings.
-- **Clinician Dashboard**:
-  - **Review & Edit**: Interactive interface for clinicians to review, modify, and finalize AI-generated plans.
-  - **Approval Workflow**: Formal "Approve" or "Reject" actions with mandatory reasoning for rejections.
-  - **PDF Export**: Print-friendly format for generating patient handouts or medical records.
-- **Patient Management**: Centralized view of all patient records with status tracking.
-- **Audit Logging**: Comprehensive tracking of all actions (edits, approvals, rejections) for compliance and accountability.
+## Flow
 
-### Tech Stack
-- **Framework**: [Next.js 15](https://nextjs.org/) (App Router)
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS
-- **Database**: [Supabase](https://supabase.com/) (PostgreSQL)
-- **Authentication**: Supabase Auth
-- **AI Engine**: OpenAI API (GPT-4)
-- **Icons**: Lucide React
+1. **Structured Intake**
+   Patient data is collected via a multi-step digital intake.
+2. **AI Clinical Analysis**
+   Data is processed through a RAG pipeline using FAISS to retrieve relevant medical knowledge, assess risks, and generate treatment suggestions.
+3. **Clinician Review**
+   Clinicians review, adjust, or override AI outputs with risk classifications.
+4. **Approval & Audit**
+   Final decisions are approved by clinicians and fully logged for compliance.
+5. **Report Output**
+   Approved plans are exported as clinical reports (PDF).
 
----
+## Features
 
-## 🛠️ Developer Setup
+- **Risk Detection**: Automated health risk and conflict alerts.
+- **Treatment Guidance**: AI-driven medication and lifestyle recommendations.
+- **Clinician Control**: Full review and override insights.
+- **Audit Logging**: Complete, compliant change history.
+- **Secure Access**: Role-based patient and provider authentication.
 
-Follow these steps to get the project running locally.
+## Tech Stack
 
-### Prerequisites
-- Node.js 18+ or Bun
-- A Supabase account
-- An OpenAI API key
+![Bun](https://img.shields.io/badge/Bun-%23000000.svg?style=for-the-badge&logo=bun&logoColor=white)
+![Next JS](https://img.shields.io/badge/Next-black?style=for-the-badge&logo=next.js&logoColor=white)
+![Vercel](https://img.shields.io/badge/vercel-%23000000.svg?style=for-the-badge&logo=vercel&logoColor=white)
 
-### 1. Clone the Repository
-```bash
-git clone https://github.com/Eewonn/ai-health-clinical-assistant.git
-cd ai-health-clinical-assistant
-```
+## Setup
 
-### 2. Install Dependencies
-```bash
-bun install
-# or
-npm install
-```
+1.  **Environment Variables**: Create a `.env.local` file based on `env.sample`:
+    ```env
+    NEXT_PUBLIC_SUPABASE_URL=...
+    NEXT_PUBLIC_SUPABASE_ANON_KEY=...
+    SUPABASE_SERVICE_ROLE_KEY=...
+    OPENAI_API_KEY=...
+    ```
+2.  **Run Development Server**:
+    ```bash
+    bun install
+    bun run dev
+    ```
 
-### 3. Environment Configuration
-Create a `.env.local` file in the root directory and add the following variables:
-
-```env
-# Supabase Configuration
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
-
-# OpenAI Configuration
-OPENAI_API_KEY=your_openai_api_key
-```
-
-### 4. Database Setup
-1. Go to your Supabase project dashboard.
-2. Navigate to the **SQL Editor**.
-3. Run the contents of the `supabase_schema.sql` file located in the root of this project.
-   - This will create the necessary tables (`patient_intake`, `ai_analysis_results`, `audit_logs`) and security policies.
-
-### 5. Run the Development Server
-```bash
-bun run dev
-# or
-npm run dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the application.
-
-## 📂 Project Structure
-
-```
-src/
-├── app/                 # Next.js App Router pages and API routes
-│   ├── api/             # Backend API endpoints (analysis, patients, etc.)
-│   ├── analysis/        # Analysis result & dashboard pages
-│   ├── intake/          # Patient intake form pages
-│   ├── patients/        # Patient list view
-│   └── ...
-├── components/          # Reusable UI components
-│   ├── Dashboard.tsx    # Main clinical dashboard component
-│   ├── IntakeForm/      # Multi-step intake form components
-│   └── ...
-├── lib/                 # Utility functions and configurations
-│   ├── openai.ts        # OpenAI API integration
-│   ├── supabase.ts      # Supabase client setup
-│   └── types.ts         # TypeScript interfaces
-└── ...
-```
-
-## 🔒 Security & Compliance
-- **Row Level Security (RLS)**: Enabled on Supabase tables to restrict data access.
-- **Audit Trails**: All critical clinical decisions are logged in the `audit_logs` table.
-- **Data Validation**: Strict type checking and validation on both frontend and backend.
-
-## 🤝 Contributing
-1. Fork the repository.
-2. Create a new branch (`git checkout -b feature/amazing-feature`).
-3. Commit your changes (`git commit -m 'Add some amazing feature'`).
-4. Push to the branch (`git push origin feature/amazing-feature`).
-5. Open a Pull Request.
+![Sola Brand Board](./public/sola-brand-board.png)
