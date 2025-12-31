@@ -56,6 +56,6 @@ Clinical decision support system that bridges structured patient intake and clin
     bun run dev
     ```
 
-### Brand Board
+## Brand Board
 
 ![Sola Brand Board](./public/sola-brand-board.png)
