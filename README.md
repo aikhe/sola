@@ -2,6 +2,7 @@
   <br />
   <a href="https://sola-buddy.vercel.app">
     <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://sola-buddy.vercel.app/sola-logo.png">
       <img src="https://sola-buddy.vercel.app/sola-logo.png" width="200px">
     </picture>
   </a>
@@ -54,5 +55,7 @@ Clinical decision support system that bridges structured patient intake and clin
     bun install
     bun run dev
     ```
+
+### Brand Board
 
 ![Sola Brand Board](./public/sola-brand-board.png)
