@@ -73,8 +73,13 @@
   body {
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
-    font-family: var(--font-sans), system-ui, -apple-system, BlinkMacSystemFont,
-      "Segoe UI", sans-serif;
+    font-family:
+      var(--font-sans),
+      system-ui,
+      -apple-system,
+      BlinkMacSystemFont,
+      "Segoe UI",
+      sans-serif;
     -webkit-font-smoothing: antialiased;
     min-height: 100vh;
     zoom: 100%;
@@ -86,7 +91,9 @@
   button,
   select,
   .cursor-pointer {
-    cursor: url('/cursor-v4.png') 1 1, auto;
+    cursor:
+      url("/cursor.svg") 1 1,
+      auto;
   }
 
   /* Remove default spinner for number inputs */
@@ -101,3 +108,4 @@
     appearance: textfield;
   }
 }
+
